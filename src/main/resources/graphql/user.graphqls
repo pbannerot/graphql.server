@@ -1,0 +1,26 @@
+enum Country {
+    CA
+    FR
+    UK
+    US
+    DE
+}
+
+type LocationDTO {
+    id: ID
+    city: String
+    country: Country
+}
+
+type UserDTO {
+    id: ID
+    firstName: String
+    lastName: String
+    location: LocationDTO
+}
+
+type Query {
+    users: [UserDTO]
+    userById(id: ID!): UserDTO
+    usersByCountry(country: Country!): [UserDTO]
+}

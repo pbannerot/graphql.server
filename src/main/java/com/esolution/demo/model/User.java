@@ -1,4 +1,4 @@
-package com.example.demo.model;
+package com.esolution.demo.model;
 
 import java.util.UUID;
 
