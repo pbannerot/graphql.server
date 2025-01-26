@@ -1,4 +1,4 @@
-package com.example.demo.controller;
+package com.esolution.demo.controller;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.model.Country;
-import com.example.demo.model.dto.UserDTO;
-import com.example.demo.service.UserService;
+import com.esolution.demo.model.Country;
+import com.esolution.demo.model.dto.UserDTO;
+import com.esolution.demo.service.UserService;
 
 @RestController
 @RequestMapping("/demo")
@@ -29,8 +29,8 @@ public class UserController {
 	
 //	curl -X GET "http://localhost:9090/demo/users"
 	@GetMapping("/users")
-	public List<UserDTO> getAllUsers() {
-		return userService.users();
+	public ResponseEntity<List<UserDTO>> getAllUsers() {
+		return ResponseEntity.ok(userService.users());
 	}
 
 	@GetMapping("/users/{id}")
@@ -40,9 +40,10 @@ public class UserController {
 	}
 	
 	@GetMapping("/users/country/{country}")
-//	curl -X GET "http://localhost:9090/demo/users/country/CA"
-    public List<UserDTO> getUsersByCountry(@PathVariable Country country) {
-        return userService.getUsersByCountry(country);
+//	curl -X GET "http://localhost:9090/demo/users/country/CA" -w "%{http_code}\n" 
+    public ResponseEntity<List<UserDTO>> getUsersByCountry(@PathVariable Country country) {
+		List<UserDTO> usersInCountry = userService.getUsersByCountry(country);
+        return usersInCountry.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(usersInCountry);
     }
 
 	@PostMapping("/users")

@@ -1,8 +1,8 @@
-package com.example.demo.model.dto;
+package com.esolution.demo.model.dto;
 
 import java.util.UUID;
 
-import com.example.demo.model.Country;
+import com.esolution.demo.model.Country;
 
 public record LocationDTO(UUID id, String city, Country country) {
 

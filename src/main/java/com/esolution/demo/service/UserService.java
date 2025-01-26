@@ -1,4 +1,4 @@
-package com.example.demo.service;
+package com.esolution.demo.service;
 
 import java.util.List;
 import java.util.Optional;
@@ -8,13 +8,13 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.model.Country;
-import com.example.demo.model.Location;
-import com.example.demo.model.User;
-import com.example.demo.model.dto.LocationDTO;
-import com.example.demo.model.dto.UserDTO;
-import com.example.demo.repository.LocationRepository;
-import com.example.demo.repository.UserRepository;
+import com.esolution.demo.model.Country;
+import com.esolution.demo.model.Location;
+import com.esolution.demo.model.User;
+import com.esolution.demo.model.dto.LocationDTO;
+import com.esolution.demo.model.dto.UserDTO;
+import com.esolution.demo.repository.LocationRepository;
+import com.esolution.demo.repository.UserRepository;
 
 @Service
 public class UserService {
