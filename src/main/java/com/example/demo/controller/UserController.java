@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,7 +26,7 @@ import com.example.demo.service.UserService;
 public class UserController {
 	@Autowired
 	private UserService userService;
-
+	
 //	curl -X GET "http://localhost:9090/demo/users"
 	@GetMapping("/users")
 	public List<UserDTO> getAllUsers() {
@@ -55,8 +56,11 @@ public class UserController {
 //	        "country": "FR"
 //	    }
 //	}'
-	public UserDTO createUser(@RequestBody UserDTO user) {
-		return userService.createUser(user.firstName(), user.lastName(), user.location());
+	public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO user) {
+		UserDTO createdUser = userService.createUser(user.firstName(), user.lastName(), user.location());
+		return ResponseEntity
+	            .status(HttpStatus.CREATED)
+	            .body(createdUser);
 	}
 	
 	@PutMapping("/users/{userId}/location")
