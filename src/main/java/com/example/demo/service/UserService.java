@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.model.Country;
@@ -17,15 +18,13 @@ import com.example.demo.repository.UserRepository;
 
 @Service
 public class UserService {
-	private final UserRepository userRepository;
-	private final LocationRepository locationRepository;
+	@Autowired
+	private UserRepository userRepository;
+	
+	@Autowired
+	private LocationRepository locationRepository;
 
-	public UserService(UserRepository userRepository, LocationRepository locationRepository) {
-		this.userRepository = userRepository;
-		this.locationRepository = locationRepository;
-	}
-
-	private UserDTO convertToUserDTO(User user) {
+	public UserDTO convertToUserDTO(User user) {
 		LocationDTO locationDTO = new LocationDTO(user.getLocation().getId(), user.getLocation().getCity(),
 				user.getLocation().getCountry());
 		return new UserDTO(user.getId(), user.getFirstName(), user.getLastName(), locationDTO);
@@ -41,7 +40,7 @@ public class UserService {
 
 	public UserDTO createUser(String firstName, String lastName, LocationDTO location) {
 		Location getOrCreateLocation = locationRepository.findByCityAndCountry(location.city(), location.country())
-				.orElseGet(() -> createLocationForCountry(location.country()));
+				.orElseGet(() -> createLocationForCountry(location.city(), location.country()));
 		User user = new User.Builder().setFirstName(firstName).setLastName(lastName).setLocation(getOrCreateLocation).build();
 		User savedUser = userRepository.save(user);
 		return convertToUserDTO(savedUser);
@@ -66,18 +65,17 @@ public class UserService {
 		if (!userOptional.isPresent()) {
 			throw new IllegalArgumentException("User not found");
 		}
+		User user = userOptional.get();
 		
 		Location location = locationRepository.findByCountry(country)
-				.orElseGet(() -> createLocationForCountry(country));
-		
-		User user = userOptional.get();
+				.orElseGet(() -> createLocationForCountry(user.getLocation().getCity(), country));
 		user.setLocation(location);
 		
 		return convertToUserDTO(userRepository.save(user));
 	}
 
-	private Location createLocationForCountry(Country country) {
-		Location location = new Location.Builder().setCity("Default City").setCountry(country).build();
+	private Location createLocationForCountry(String city, Country country) {
+		Location location = new Location.Builder().setCity(city).setCountry(country).build();
 		return locationRepository.save(location);
 	}
 }
