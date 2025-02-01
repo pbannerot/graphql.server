@@ -1,13 +1,8 @@
-package com.esolution.demo.datafetcher;
+package com.esolution.demo.mutation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,16 +10,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.esolution.demo.datafetcher.UserMutation;
 import com.esolution.demo.model.Country;
 import com.esolution.demo.model.Location;
 import com.esolution.demo.model.User;
+import com.esolution.demo.model.dto.LocationDTOInput;
 import com.esolution.demo.model.dto.UserDTO;
 import com.esolution.demo.repository.LocationRepository;
 import com.esolution.demo.repository.UserRepository;
 
 @SpringBootTest
 @Transactional
-class UserDataFetcherTest {
+class UserMutationTest {
 	@Autowired
     private UserRepository userRepository;
 
@@ -32,10 +29,10 @@ class UserDataFetcherTest {
     private LocationRepository locationRepository;
 
     @Autowired
-    private UserDataFetcher usersDataFetcher;
+    private UserMutation userMutation;
     
     private User user1;
-    private User user2;
+//    private User user2;
 
 	@BeforeEach
 	void setUp() throws Exception {
@@ -43,32 +40,24 @@ class UserDataFetcherTest {
 		Location location2 = locationRepository.save(new Location.Builder().setCity("London").setCountry(Country.UK).build());
 
 		user1 = userRepository.save(new User.Builder().setFirstName("Alice").setLastName("Dupont").setLocation(location1).build());
-        user2 = userRepository.save(new User.Builder().setFirstName("Bob").setLastName("Martin").setLocation(location2).build());
+//        user2 = userRepository.save(new User.Builder().setFirstName("Bob").setLastName("Martin").setLocation(location2).build());
 	}
 
 	@Test
-    void testUsers() {
-		List<UserDTO> users = usersDataFetcher.users(null); 
+	void testCreateUser() {
+		LocationDTOInput locationDTOInput = new LocationDTOInput("Toronto", Country.CA);
+		UserDTO result = userMutation.createUser("Charlie", "Johnson", locationDTOInput);
 		
-		assertNotNull(users);
-        assertTrue(users.size() > 0);
-        assertEquals(user1.getFirstName(), users.get(0).firstName());
-        assertEquals(user2.getLastName(), users.get(1).lastName());
-    }
+		assertNotNull(result);
+        assertNotNull(result.id());
+        assertEquals("Charlie", result.firstName());
+	}
 
-    @Test
-    void testUserById() {
-    	UserDTO result = usersDataFetcher.userById(user1.getId());
-    	
-    	assertNotNull(result);
-        assertEquals(user1.getId(), result.id());
-        assertEquals("Alice", result.firstName());
-    }
-
-    @Test
-    void testUserByIdNotFound() {
-    	UUID wrongId = UUID.randomUUID();
-    	assertThrows(NoSuchElementException.class, () -> usersDataFetcher.userById(wrongId));
-    } 
+	@Test
+	void testDeleteUser() {
+		boolean result = userMutation.deleteUser(user1.getId().toString());
+		
+		assertTrue(result);
+	}
 
 }
