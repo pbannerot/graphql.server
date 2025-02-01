@@ -1,6 +1,7 @@
 package com.esolution.demo.datafetcher;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,7 @@ import com.esolution.demo.service.UserService;
 import graphql.schema.DataFetchingEnvironment;
 
 @Controller
-public class UsersDataFetcher {
+public class UserDataFetcher {
 	@Autowired
 	private UserService userService;
 	
@@ -37,7 +38,7 @@ public class UsersDataFetcher {
 	
 	@QueryMapping
     public UserDTO userById(@Argument UUID id) {
-        return userService.getUser(id).orElseThrow();
+        return userService.getUser(id).orElseThrow(() -> new NoSuchElementException(String.format("User not found with id: %s", id)));
     }
 	
 //	{

@@ -35,10 +35,9 @@ public class Location {
         this.country = builder.country;
     }
 
-    
-     public UUID getId() {
-     return id;
-     }
+	public UUID getId() {
+		return id;
+	}
      
 
     public String getCity() {
