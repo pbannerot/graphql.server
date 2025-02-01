@@ -9,6 +9,7 @@ import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
+import com.esolution.demo.model.Country;
 import com.esolution.demo.model.dto.UserDTO;
 import com.esolution.demo.service.UserService;
 
@@ -19,18 +20,6 @@ public class UserDataFetcher {
 	@Autowired
 	private UserService userService;
 	
-//	{
-//	  users {
-//	    id
-//	    firstName
-//	    lastName
-//	    location {
-//	      city
-//	      country
-//	    }
-//	  }
-//	}
-
 	@QueryMapping
     public List<UserDTO> users(DataFetchingEnvironment environment) {
         return userService.users();
@@ -40,16 +29,9 @@ public class UserDataFetcher {
     public UserDTO userById(@Argument UUID id) {
         return userService.getUser(id).orElseThrow(() -> new NoSuchElementException(String.format("User not found with id: %s", id)));
     }
-	
-//	{
-//	  usersByCountry(country: FR) {
-//	    id
-//	    firstName
-//	    lastName
-//	    location {
-//	      city
-//	      country
-//	    }
-//	  }
 
+	@QueryMapping
+	public List<UserDTO> usersByCountry(@Argument Country country) {
+		return userService.getUsersByCountry(country);
+	}
 }

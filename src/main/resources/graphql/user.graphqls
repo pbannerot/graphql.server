@@ -24,3 +24,15 @@ type Query {
     userById(id: ID!): UserDTO
     usersByCountry(country: Country!): [UserDTO]
 }
+
+input LocationDTOInput {
+    city: String
+    country: Country
+}
+
+type Mutation {
+    createUser(firstName: String!, lastName: String!, location: LocationDTOInput!): UserDTO
+    deleteUser(id: ID!): Boolean
+}
+
+
