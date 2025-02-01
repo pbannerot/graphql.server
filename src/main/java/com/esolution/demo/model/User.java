@@ -36,10 +36,9 @@ public class User {
         this.location = builder.location;
     }
 
-      public UUID getId() {
-      return id;
-      }
-     
+	public UUID getId() {
+		return id;
+	}    
 
     public String getFirstName() {
         return firstName;
