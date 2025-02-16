@@ -21,6 +21,8 @@ import com.esolution.demo.model.Country;
 import com.esolution.demo.model.dto.UserDTO;
 import com.esolution.demo.service.UserService;
 
+//http://localhost:9090/swagger-ui/index.html
+
 @RestController
 @RequestMapping("/demo")
 public class UserController {

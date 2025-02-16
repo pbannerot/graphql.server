@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.esolution.demo.model.Country;
 import com.esolution.demo.model.Location;
@@ -16,6 +17,9 @@ import com.esolution.demo.model.dto.UserDTO;
 import com.esolution.demo.repository.LocationRepository;
 import com.esolution.demo.repository.UserRepository;
 
+import reactor.core.publisher.Sinks;
+import reactor.core.publisher.Sinks.EmitResult;
+
 @Service
 public class UserService {
 	@Autowired
@@ -23,6 +27,15 @@ public class UserService {
 	
 	@Autowired
 	private LocationRepository locationRepository;
+	
+//	@Autowired
+//  private SimpMessagingTemplate messagingTemplate;
+	
+	private final Sinks.Many<String> messageSink = Sinks.many().multicast().onBackpressureBuffer();
+	
+	public Sinks.Many<String> getMessageSink() {
+        return messageSink;
+    }
 
 	public UserDTO convertToUserDTO(User user) {
 		LocationDTO locationDTO = new LocationDTO(user.getLocation().getId(), user.getLocation().getCity(),
@@ -38,19 +51,30 @@ public class UserService {
 		return userRepository.findById(uuid).map(this::convertToUserDTO);
 	}
 
+	@Transactional
 	public UserDTO createUser(String firstName, String lastName, LocationDTO location) {
 		Location getOrCreateLocation = locationRepository.findByCityAndCountry(location.city(), location.country())
 				.orElseGet(() -> createLocationForCountry(location.city(), location.country()));
 		User user = new User.Builder().setFirstName(firstName).setLastName(lastName).setLocation(getOrCreateLocation).build();
 		User savedUser = userRepository.save(user);
+		
+//		messagingTemplate.convertAndSend("/topic/userCreated", user);
+		EmitResult result = messageSink.tryEmitNext("Create new user with id: " + savedUser.getId());
+		
 		return convertToUserDTO(savedUser);
 	}
 
+	@Transactional
 	public boolean deleteUser(UUID uuid) {
 		boolean isDeleted = false;
-		if (userRepository.findById(uuid).isPresent()) {
+		
+		Optional<User> optional = userRepository.findById(uuid);
+		if (optional.isPresent()) {
+			User user = optional.get();
 			userRepository.deleteById(uuid);
 			isDeleted = true;
+			
+//			 messagingTemplate.convertAndSend("/topic/userDeleted", user.getId());
 		}
 		return isDeleted;
 	}
@@ -60,6 +84,7 @@ public class UserService {
 				.collect(Collectors.toList());
 	}
 
+	@Transactional
 	public UserDTO assignLocationToUser(UUID userId, Country country) {
 		Optional<User> userOptional = userRepository.findById(userId);
 		if (!userOptional.isPresent()) {
@@ -74,8 +99,10 @@ public class UserService {
 		return convertToUserDTO(userRepository.save(user));
 	}
 
+	@Transactional
 	private Location createLocationForCountry(String city, Country country) {
 		Location location = new Location.Builder().setCity(city).setCountry(country).build();
 		return locationRepository.save(location);
 	}
+	
 }
