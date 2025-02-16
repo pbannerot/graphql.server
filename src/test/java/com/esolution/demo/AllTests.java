@@ -4,8 +4,8 @@ import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
 
 import com.esolution.demo.controller.UserControllerTest;
-import com.esolution.demo.datafetcher.UserDataFetcher;
-import com.esolution.demo.datafetcher.UserMutation;
+import com.esolution.demo.graphql.UserDataFetcher;
+import com.esolution.demo.graphql.UserMutation;
 
 @Suite
 @SelectClasses({ // DemoApplicationTests.class, 

@@ -1,4 +1,4 @@
-package com.esolution.demo.datafetcher;
+package com.esolution.demo.graphql;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -15,6 +15,8 @@ import com.esolution.demo.service.UserService;
 
 import graphql.schema.DataFetchingEnvironment;
 
+// http://localhost:9090/graphiql?path=/graphql&wsPath=/graphql
+	
 @Controller
 public class UserDataFetcher {
 	@Autowired

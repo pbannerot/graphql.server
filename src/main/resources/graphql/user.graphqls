@@ -20,19 +20,28 @@ type UserDTO {
 }
 
 type Query {
+	hello: String
+	
     users: [UserDTO]
     userById(id: ID!): UserDTO
     usersByCountry(country: Country!): [UserDTO]
 }
 
 input LocationDTOInput {
-    city: String
-    country: Country
+    city: String!
+    country: Country!
 }
 
 type Mutation {
+	createSimpleCAUser(firstName: String!, lastName: String!): UserDTO
     createUser(firstName: String!, lastName: String!, location: LocationDTOInput!): UserDTO
     deleteUser(id: ID!): Boolean
 }
 
+type Subscription {
+	newMessage: String
+	
+    userCreated: UserDTO
+    userDeleted: ID
+}
 
