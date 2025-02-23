@@ -1,4 +1,4 @@
-package com.esolution.demo.graphql.configuration;
+package com.esolution.demo.graphql.controller.configuration;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.NonNull;
@@ -10,15 +10,14 @@ import org.springframework.web.socket.server.support.HttpSessionHandshakeInterce
 
 @Configuration
 @EnableWebSocket
-public class WebSocketConfig implements WebSocketConfigurer {
+public class WebSocketConfiguration implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(@NonNull WebSocketHandlerRegistry registry) {
         registry.addHandler(graphqlWebSocketHandler(), "/graphql-ws")
-                .addInterceptors(new HttpSessionHandshakeInterceptor()) // Optionnel pour la gestion des sessions
-                .setAllowedOrigins("*");  // Définir les origines autorisées
+                .addInterceptors(new HttpSessionHandshakeInterceptor())
+                .setAllowedOrigins("*");
     }
-
     public WebSocketHandler graphqlWebSocketHandler() {
         return new GraphQLWebSocketHandler();
     }

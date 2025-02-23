@@ -42,6 +42,7 @@ type Subscription {
 	newMessage: String
 	
     userCreated: UserDTO
+    userUpdated(userId: ID!): UserDTO
     userDeleted: ID
 }
 

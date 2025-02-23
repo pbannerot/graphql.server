@@ -1,7 +1,11 @@
-package com.esolution.demo.graphql.configuration;
+package com.esolution.demo.graphql.controller;
 
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
+
+//query q {
+//	  hello
+//	}
 
 @Controller
 public class QueryController {

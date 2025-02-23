@@ -1,4 +1,4 @@
-package com.esolution.demo.graphql;
+package com.esolution.demo.graphql.controller;
 
 import java.util.UUID;
 

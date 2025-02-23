@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.esolution.demo.graphql.UserDataFetcher;
+import com.esolution.demo.graphql.controller.UserDataFetcher;
 import com.esolution.demo.model.Country;
 import com.esolution.demo.model.Location;
 import com.esolution.demo.model.User;

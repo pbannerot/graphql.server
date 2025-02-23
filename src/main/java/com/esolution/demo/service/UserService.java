@@ -5,7 +5,10 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.graphql.data.method.annotation.SubscriptionMapping;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,25 +20,40 @@ import com.esolution.demo.model.dto.UserDTO;
 import com.esolution.demo.repository.LocationRepository;
 import com.esolution.demo.repository.UserRepository;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 import reactor.core.publisher.Sinks.EmitResult;
 
 @Service
 public class UserService {
+	private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+	
 	@Autowired
 	private UserRepository userRepository;
 	
 	@Autowired
 	private LocationRepository locationRepository;
 	
-//	@Autowired
-//  private SimpMessagingTemplate messagingTemplate;
-	
 	private final Sinks.Many<String> messageSink = Sinks.many().multicast().onBackpressureBuffer();
+	private final Sinks.Many<UserDTO> userCreatedSink = Sinks.many().replay().all();
+	private final Sinks.Many<UUID> userDeletedSink = Sinks.many().replay().all();
+	private final Sinks.Many<UserDTO> userUpdatedSink = Sinks.many().replay().all();
 	
 	public Sinks.Many<String> getMessageSink() {
         return messageSink;
     }
+	
+	public Sinks.Many<UserDTO> getUserCreatedSink() {
+		return userCreatedSink;
+	}
+
+	public Sinks.Many<UUID> getUserDeletedSink() {
+		return userDeletedSink;
+	}
+	
+	public Sinks.Many<UserDTO> getUserUpdatedSink() {
+		return userUpdatedSink;
+	}
 
 	public UserDTO convertToUserDTO(User user) {
 		LocationDTO locationDTO = new LocationDTO(user.getLocation().getId(), user.getLocation().getCity(),
@@ -58,8 +76,11 @@ public class UserService {
 		User user = new User.Builder().setFirstName(firstName).setLastName(lastName).setLocation(getOrCreateLocation).build();
 		User savedUser = userRepository.save(user);
 		
-//		messagingTemplate.convertAndSend("/topic/userCreated", user);
+		userCreatedSink.tryEmitNext(convertToUserDTO(savedUser));
 		EmitResult result = messageSink.tryEmitNext("Create new user with id: " + savedUser.getId());
+		if (result.isFailure()) {
+			logger.error(result.name());
+		}
 		
 		return convertToUserDTO(savedUser);
 	}
@@ -74,7 +95,8 @@ public class UserService {
 			userRepository.deleteById(uuid);
 			isDeleted = true;
 			
-//			 messagingTemplate.convertAndSend("/topic/userDeleted", user.getId());
+			userDeletedSink.tryEmitNext(uuid);
+			messageSink.tryEmitNext("Delete user with id: " + user.getId());
 		}
 		return isDeleted;
 	}
@@ -104,5 +126,31 @@ public class UserService {
 		Location location = new Location.Builder().setCity(city).setCountry(country).build();
 		return locationRepository.save(location);
 	}
-	
+
+	@Transactional
+	public UserDTO updateUser(UUID id, UserDTO user) {
+		Optional <User> o = userRepository.findById(id);
+		if (o.isPresent()) {
+			Location l = o.get().getLocation();
+			
+			Location location = new Location.Builder()
+					.setCity(l.getCity())
+					.setCountry(l.getCountry())
+					.build();
+			location.setId(l.getId());
+			
+			User updatedUser = new User.Builder()
+					.setFirstName(user.firstName())
+					.setLastName(user.lastName())
+					.setLocation(location)
+					.build();
+			
+			updatedUser.setId(id);
+			user = convertToUserDTO(userRepository.save(updatedUser));
+			
+			userUpdatedSink.tryEmitNext(user);
+			messageSink.tryEmitNext("User with id: " + user.id() + " updated");
+		} 
+		return user;
+	}
 }

@@ -21,6 +21,8 @@ import com.esolution.demo.model.Country;
 import com.esolution.demo.model.dto.UserDTO;
 import com.esolution.demo.service.UserService;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 //http://localhost:9090/swagger-ui/index.html
 
 @RestController
@@ -81,5 +83,18 @@ public class UserController {
 	public ResponseEntity<Void> deleteUser(@PathVariable(value = "id") String uuid) {
 	    return userService.deleteUser(UUID.fromString(uuid)) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
 	}
+	
+    @PutMapping("/users/{id}")
+    @Operation(summary = "Mise à jour d'un utilisateur")
+//    curl -X PUT http://localhost:8080/users/{id} \
+//        -H "Content-Type: application/json" \
+//        -d '{
+//              "firstName": "Jane",
+//              "lastName": "Smith",
+//              "locationId": "e7e1f9f7-b3b3-4f0e-85e7-b3b34f0e85e7"
+//            }'
+    public ResponseEntity<UserDTO> updateUser(@PathVariable UUID id, @RequestBody UserDTO user) {
+        return ResponseEntity.ok(userService.updateUser(id, user));
+    }
 
 }
